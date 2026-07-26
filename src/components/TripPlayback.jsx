@@ -75,7 +75,8 @@ export default function TripPlayback({ trip, unit }) {
             vehicleIcon={trip.vehicleIcon || '🚙'}
             fullPath={fullPath}
             traveledPath={traveledPath}
-            autoRecenter={false}
+            autoRecenter
+            instantRecenter
           />
         </div>
       ) : (
