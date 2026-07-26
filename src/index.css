@@ -151,6 +151,23 @@ body {
   background: rgba(255, 255, 255, 0.28);
 }
 
+.mode-toggle {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.mode-toggle:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
 .speed-value {
   font-size: 4.5rem;
   font-weight: 700;
@@ -459,6 +476,7 @@ body {
 /* ---------- Micro-interactions ---------- */
 
 .unit-toggle,
+.mode-toggle,
 .chart-table-toggle,
 .vehicle-picker-toggle,
 .vehicle-picker-option {
@@ -466,6 +484,7 @@ body {
 }
 
 .unit-toggle:active,
+.mode-toggle:active,
 .chart-table-toggle:active,
 .vehicle-picker-toggle:active,
 .vehicle-picker-option:active {
@@ -925,6 +944,65 @@ body {
   background: transparent;
 }
 
+/* ---------- Analog speedometer gauge ---------- */
+
+.analog-gauge {
+  display: flex;
+  justify-content: center;
+  margin: 0.25rem 0;
+}
+
+.analog-gauge-svg {
+  width: 220px;
+  height: 220px;
+}
+
+.gauge-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.gauge-progress {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke 0.3s ease;
+}
+
+.gauge-tick {
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 2;
+}
+
+.gauge-tick-label {
+  fill: #c3c2b7;
+  font-size: 11px;
+}
+
+.gauge-needle {
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke 0.3s ease, x2 0.15s ease, y2 0.15s ease;
+}
+
+.gauge-hub {
+  transition: fill 0.3s ease;
+}
+
+.gauge-value {
+  fill: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge-unit {
+  fill: #c3c2b7;
+  font-size: 11px;
+}
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -934,7 +1012,10 @@ body {
   .app-header,
   .dashboard > *,
   .vehicle-picker-menu,
-  .trip-dot {
+  .trip-dot,
+  .gauge-needle,
+  .gauge-progress,
+  .gauge-hub {
     animation: none !important;
     transition: none !important;
   }

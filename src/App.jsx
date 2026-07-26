@@ -20,6 +20,7 @@ import TripHistory from './components/TripHistory'
 
 const VEHICLE_STORAGE_KEY = 'odometer.vehicleIcon'
 const UNIT_STORAGE_KEY = 'odometer.unit'
+const SPEED_MODE_STORAGE_KEY = 'odometer.speedMode'
 
 function loadStoredVehicleIcon() {
   const stored = readJSON(localStorage, VEHICLE_STORAGE_KEY, null)
@@ -31,9 +32,15 @@ function loadStoredUnit() {
   return stored === 'mph' ? 'mph' : 'kmh'
 }
 
+function loadStoredSpeedMode() {
+  const stored = readJSON(localStorage, SPEED_MODE_STORAGE_KEY, 'digital')
+  return stored === 'analog' ? 'analog' : 'digital'
+}
+
 function App() {
   const [unit, setUnit] = useState(loadStoredUnit)
   const [vehicleIcon, setVehicleIcon] = useState(loadStoredVehicleIcon)
+  const [speedMode, setSpeedMode] = useState(loadStoredSpeedMode)
   const [historyRefreshToken, setHistoryRefreshToken] = useState(0)
 
   const trip = useTripRecorder()
@@ -50,6 +57,10 @@ function App() {
   useEffect(() => {
     writeJSON(localStorage, UNIT_STORAGE_KEY, unit)
   }, [unit])
+
+  useEffect(() => {
+    writeJSON(localStorage, SPEED_MODE_STORAGE_KEY, speedMode)
+  }, [speedMode])
 
   function handleStartTrip() {
     geo.resetDistance()
@@ -104,7 +115,9 @@ function App() {
           error={geo.error}
           unit={unit}
           intensity={intensity}
+          mode={speedMode}
           onToggleUnit={() => setUnit((u) => (u === 'kmh' ? 'mph' : 'kmh'))}
+          onToggleMode={() => setSpeedMode((m) => (m === 'digital' ? 'analog' : 'digital'))}
         />
 
         <div className="map-wrapper">

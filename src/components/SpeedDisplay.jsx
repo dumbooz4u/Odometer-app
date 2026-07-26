@@ -1,6 +1,17 @@
 import { metersToKm, metersToMiles } from '../utils/geo'
+import AnalogSpeedometer from './AnalogSpeedometer'
 
-export default function SpeedDisplay({ speedMs, distanceMeters, status, error, unit, intensity = 0, onToggleUnit }) {
+export default function SpeedDisplay({
+  speedMs,
+  distanceMeters,
+  status,
+  error,
+  unit,
+  intensity = 0,
+  mode,
+  onToggleUnit,
+  onToggleMode,
+}) {
   const speedKmh = speedMs * 3.6
   const speedMph = speedMs * 2.236936
 
@@ -10,16 +21,25 @@ export default function SpeedDisplay({ speedMs, distanceMeters, status, error, u
 
   return (
     <div className="speed-display" style={{ '--intensity': intensity }}>
+      <button className="mode-toggle" onClick={onToggleMode} title="Toggle digital/analog display">
+        {mode === 'analog' ? '🎛️ Analog' : '🔢 Digital'}
+      </button>
       <button className="unit-toggle" onClick={onToggleUnit} title="Toggle units">
         {unit === 'mph' ? 'mph' : 'km/h'}
       </button>
 
-      <div className="speed-value-pulse" style={{ animationDuration: `${1.4 - intensity * 0.7}s` }}>
-        <div className="speed-value" key={rounded}>
-          {rounded}
-        </div>
-      </div>
-      <div className="speed-unit">{unit === 'mph' ? 'mph' : 'km/h'}</div>
+      {mode === 'analog' ? (
+        <AnalogSpeedometer speedMs={speedMs} unit={unit} intensity={intensity} />
+      ) : (
+        <>
+          <div className="speed-value-pulse" style={{ animationDuration: `${1.4 - intensity * 0.7}s` }}>
+            <div className="speed-value" key={rounded}>
+              {rounded}
+            </div>
+          </div>
+          <div className="speed-unit">{unit === 'mph' ? 'mph' : 'km/h'}</div>
+        </>
+      )}
 
       <div className="odometer">
         <span className="odometer-value">{distanceValue.toFixed(2)}</span>
