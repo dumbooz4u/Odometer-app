@@ -1,6 +1,6 @@
 import { metersToKm, metersToMiles } from '../utils/geo'
 
-export default function SpeedDisplay({ speedMs, distanceMeters, status, error, unit, intensity = 0, onToggleUnit }) {
+export default function SpeedDisplay({ speedMs, distanceMeters, status, error, unit, intensity = 0, onToggleUnit, onResetTrip }) {
   const speedKmh = speedMs * 3.6
   const speedMph = speedMs * 2.236936
 
@@ -24,6 +24,9 @@ export default function SpeedDisplay({ speedMs, distanceMeters, status, error, u
       <div className="odometer">
         <span className="odometer-value">{distanceValue.toFixed(2)}</span>
         <span className="odometer-unit">{unit === 'mph' ? 'mi' : 'km'} this session</span>
+        <button className="reset-trip" onClick={onResetTrip} title="Reset trip distance and chart">
+          ↺ Reset trip
+        </button>
       </div>
 
       <div className={`gps-status gps-status--${status}`}>

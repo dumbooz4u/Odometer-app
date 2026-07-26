@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { haversineMeters } from '../utils/geo'
+import { readJSON, writeJSON } from '../utils/storage'
 
 // Ignore fixes whose reported accuracy is worse than this (meters) when
 // accumulating odometer distance, to keep GPS jitter from adding fake miles.
@@ -8,15 +9,19 @@ const MAX_ACCURACY_FOR_DISTANCE_M = 30
 // fix from the distance total, since jitter is loudest while parked.
 const MIN_SPEED_FOR_DISTANCE_MS = 0.5
 
+// Trip distance survives a refresh (sessionStorage) but not a closed tab —
+// resetTrip() below, or closing the tab, is how you start a new one.
+export const TRIP_DISTANCE_KEY = 'odometer.trip.distanceMeters'
+
 export function useGeolocation() {
-  const [state, setState] = useState({
+  const [state, setState] = useState(() => ({
     status: 'idle', // idle | locating | tracking | error
     error: null,
     position: null, // { lat, lon, accuracy, heading, altitude }
     speedMs: 0, // instantaneous speed, meters/second
-    distanceMeters: 0, // accumulated odometer reading
+    distanceMeters: readJSON(sessionStorage, TRIP_DISTANCE_KEY, 0), // accumulated odometer reading
     fixSeq: 0, // increments on every GPS fix, even if speed is unchanged
-  })
+  }))
   const lastFixRef = useRef(null)
 
   useEffect(() => {
@@ -53,15 +58,19 @@ export function useGeolocation() {
 
         lastFixRef.current = { lat: latitude, lon: longitude, timestamp }
 
-        setState((s) => ({
-          ...s,
-          status: 'tracking',
-          error: null,
-          position: { lat: latitude, lon: longitude, accuracy, heading, altitude },
-          speedMs: derivedSpeed ?? 0,
-          distanceMeters: s.distanceMeters + distanceDeltaM,
-          fixSeq: s.fixSeq + 1,
-        }))
+        setState((s) => {
+          const distanceMeters = s.distanceMeters + distanceDeltaM
+          if (distanceDeltaM > 0) writeJSON(sessionStorage, TRIP_DISTANCE_KEY, distanceMeters)
+          return {
+            ...s,
+            status: 'tracking',
+            error: null,
+            position: { lat: latitude, lon: longitude, accuracy, heading, altitude },
+            speedMs: derivedSpeed ?? 0,
+            distanceMeters,
+            fixSeq: s.fixSeq + 1,
+          }
+        })
       },
       (err) => {
         setState((s) => ({ ...s, status: 'error', error: err.message }))

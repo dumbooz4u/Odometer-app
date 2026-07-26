@@ -181,6 +181,26 @@ body {
   opacity: 0.65;
 }
 
+.reset-trip {
+  margin-top: 0.5rem;
+  background: none;
+  border: none;
+  color: #c3c2b7;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.reset-trip:hover {
+  opacity: 1;
+}
+
+.reset-trip:active {
+  transform: scale(0.92);
+}
+
 .gps-status {
   margin-top: 1rem;
   font-size: 0.75rem;
