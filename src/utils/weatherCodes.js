@@ -31,8 +31,26 @@ const CODE_MAP = {
   99: { label: 'Thunderstorm, heavy hail', icon: '⛈️', theme: 'storm' },
 }
 
-export function describeWeatherCode(code, isDay) {
-  const entry = CODE_MAP[code] ?? { label: 'Unknown', icon: '❔', theme: 'cloudy' }
+// Open-Meteo's "current" weather_code summarizes the dominant condition
+// forecast for the whole current hour, not necessarily what's falling this
+// instant — a light-rain code can persist for the hour even between actual
+// drops, or shortly before/after rain that hasn't started or has already
+// stopped. Cross-checking against measured precipitation (mm this hour)
+// avoids showing a confident "rain" theme when nothing is actually falling.
+const NO_PRECIPITATION_MM = 0.1
+
+function isPrecipitationCode(code) {
+  return (code >= 51 && code <= 67) || (code >= 71 && code <= 86) || (code >= 95 && code <= 99)
+}
+
+export function describeWeatherCode(code, isDay, precipitationMm) {
+  const rawEntry = CODE_MAP[code] ?? { label: 'Unknown', icon: '❔', theme: 'cloudy' }
+
+  const entry =
+    isPrecipitationCode(code) && (precipitationMm ?? 0) < NO_PRECIPITATION_MM
+      ? { label: 'Overcast', icon: '☁️', theme: 'cloudy' }
+      : rawEntry
+
   if (!isDay && entry.theme === 'clear') {
     return { ...entry, icon: '🌙', theme: 'clear-night' }
   }

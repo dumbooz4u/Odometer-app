@@ -23,7 +23,7 @@ export default function WeatherPanel({ weather }) {
 
   if (!data) return null
 
-  const { label, icon } = describeWeatherCode(data.weather_code, data.is_day)
+  const { label, icon } = describeWeatherCode(data.weather_code, data.is_day, data.precipitation)
 
   return (
     <div className="weather-panel">

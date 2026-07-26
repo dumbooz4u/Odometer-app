@@ -46,7 +46,7 @@ export default function OdometerApp() {
 
   const trip = useTripRecorder()
   const geo = useGeolocation(trip.isRecording)
-  const weather = useWeather(geo.position?.lat, geo.position?.lon)
+  const weather = useWeather(geo.position?.lat, geo.position?.lon, geo.position?.accuracy)
   const geocode = useReverseGeocode(geo.position?.lat, geo.position?.lon)
   const speedHistory = useSpeedHistory(geo.speedMs, geo.status, geo.fixSeq, trip.isRecording, geo.position)
   const wakeLock = useWakeLock(geo.status === 'tracking' || geo.status === 'locating')
@@ -101,7 +101,7 @@ export default function OdometerApp() {
   }
 
   const theme = weather.data
-    ? describeWeatherCode(weather.data.weather_code, weather.data.is_day).theme
+    ? describeWeatherCode(weather.data.weather_code, weather.data.is_day, weather.data.precipitation).theme
     : 'default'
 
   const speedKmh = geo.speedMs * 3.6
