@@ -1,16 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
-import markerIcon from 'leaflet/dist/images/marker-icon.png'
-import markerShadow from 'leaflet/dist/images/marker-shadow.png'
-
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-})
 
 function Recenter({ lat, lon }) {
   const map = useMap()
@@ -20,7 +10,29 @@ function Recenter({ lat, lon }) {
   return null
 }
 
-export default function MapView({ position }) {
+function useVehicleDivIcon(emoji, heading) {
+  const lastHeadingRef = useRef(0)
+  if (typeof heading === 'number' && !Number.isNaN(heading)) {
+    lastHeadingRef.current = heading
+  }
+  const rotation = lastHeadingRef.current
+
+  return useMemo(
+    () =>
+      L.divIcon({
+        className: 'vehicle-marker-wrap',
+        html: `<div class="vehicle-marker" style="transform: rotate(${rotation}deg)"><span>${emoji}</span></div>`,
+        iconSize: [44, 44],
+        iconAnchor: [22, 22],
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [emoji, rotation],
+  )
+}
+
+export default function MapView({ position, vehicleIcon }) {
+  const icon = useVehicleDivIcon(vehicleIcon, position?.heading)
+
   if (!position) {
     return <div className="map-placeholder">Waiting for GPS fix…</div>
   }
@@ -33,8 +45,8 @@ export default function MapView({ position }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Marker position={[lat, lon]} />
-      {accuracy && <Circle center={[lat, lon]} radius={accuracy} pathOptions={{ color: '#3388ff', weight: 1 }} />}
+      <Marker position={[lat, lon]} icon={icon} />
+      {accuracy && <Circle center={[lat, lon]} radius={accuracy} pathOptions={{ color: '#3987e5', weight: 1 }} />}
       <Recenter lat={lat} lon={lon} />
     </MapContainer>
   )

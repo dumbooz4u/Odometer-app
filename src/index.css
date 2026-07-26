@@ -17,12 +17,39 @@ body {
 }
 
 .app {
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   color: #fff;
-  transition: background 0.8s ease;
+  transition: background 1.2s ease;
   background: linear-gradient(160deg, #1f2733, #10151d);
+}
+
+.app::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, calc(0.4 * var(--speed-intensity, 0))) 100%);
+  transition: background 0.4s ease;
+}
+
+.weatherfx {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.app-header,
+.dashboard,
+.app-footer {
+  position: relative;
+  z-index: 1;
 }
 
 /* Weather-reactive themes */
@@ -171,14 +198,16 @@ body {
 }
 
 .map-wrapper {
+  position: relative;
   border-radius: 1rem;
-  overflow: hidden;
   min-height: 320px;
 }
 
 .map-container {
   width: 100%;
   height: 320px;
+  border-radius: 1rem;
+  overflow: hidden;
 }
 
 .map-placeholder {
@@ -382,4 +411,346 @@ body {
   font-size: 0.7rem;
   opacity: 0.55;
   padding: 0.4rem 0.75rem;
+}
+
+/* ---------- Entrance choreography ---------- */
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-header {
+  animation: panel-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.dashboard > * {
+  animation: panel-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.dashboard > *:nth-child(1) { animation-delay: 0s; }
+.dashboard > *:nth-child(2) { animation-delay: 0.06s; }
+.dashboard > *:nth-child(3) { animation-delay: 0.12s; }
+.dashboard > *:nth-child(4) { animation-delay: 0.18s; }
+.dashboard > *:nth-child(5) { animation-delay: 0.24s; }
+
+/* ---------- Glass panel depth ---------- */
+
+.speed-display,
+.weather-panel,
+.chart-panel,
+.location-banner,
+.map-wrapper {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ---------- Micro-interactions ---------- */
+
+.unit-toggle,
+.chart-table-toggle,
+.vehicle-picker-toggle,
+.vehicle-picker-option {
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.unit-toggle:active,
+.chart-table-toggle:active,
+.vehicle-picker-toggle:active,
+.vehicle-picker-option:active {
+  transform: scale(0.9);
+}
+
+/* ---------- Speed number: reactive glow + live tick ---------- */
+
+.speed-value-pulse {
+  animation-name: speed-pulse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes speed-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes speed-tick {
+  from {
+    opacity: 0.35;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.speed-value {
+  animation: speed-tick 0.35s ease-out;
+  text-shadow:
+    0 0 calc(8px + 26px * var(--intensity, 0)) rgba(57, 135, 229, calc(0.4 - 0.25 * var(--intensity, 0))),
+    0 0 calc(6px + 46px * var(--intensity, 0)) rgba(255, 130, 60, calc(0.75 * var(--intensity, 0)));
+}
+
+/* ---------- Vehicle marker ---------- */
+
+.vehicle-marker-wrap {
+  background: transparent;
+  border: none;
+}
+
+.vehicle-marker {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(20, 20, 20, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 0 0 4px rgba(57, 135, 229, 0.25),
+    0 4px 14px rgba(0, 0, 0, 0.4);
+  font-size: 22px;
+  backdrop-filter: blur(2px);
+}
+
+.vehicle-marker span {
+  display: block;
+  transform: translateY(-1px);
+}
+
+/* ---------- Vehicle picker menu ---------- */
+
+.vehicle-picker {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 1200;
+}
+
+.vehicle-picker-toggle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(6px);
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.vehicle-picker-menu {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: rgba(15, 15, 15, 0.75);
+  backdrop-filter: blur(10px);
+  padding: 0.4rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: panel-in 0.2s ease both;
+}
+
+.vehicle-picker-option {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.vehicle-picker-option:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.vehicle-picker-option.is-active {
+  background: rgba(57, 135, 229, 0.35);
+  box-shadow: 0 0 0 2px rgba(57, 135, 229, 0.6);
+}
+
+/* ---------- Location banner ---------- */
+
+.location-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  border-radius: 1rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.location-pin {
+  font-size: 1.1rem;
+}
+
+.location-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.location-text--muted {
+  opacity: 0.6;
+  font-weight: 400;
+}
+
+/* ---------- Wake lock badge ---------- */
+
+.wakelock-badge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.7;
+  transition: background 0.3s ease, opacity 0.3s ease;
+}
+
+.wakelock-badge.is-active {
+  background: rgba(70, 220, 130, 0.22);
+  opacity: 1;
+}
+
+/* ---------- Weather FX particles ---------- */
+
+.fx-drop {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(200, 225, 255, 0.65));
+  animation-name: fx-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fx-fall {
+  0% { transform: translateY(-10vh); opacity: 0; }
+  8% { opacity: 0.9; }
+  100% { transform: translateY(110vh); opacity: 0.3; }
+}
+
+.fx-flake {
+  position: absolute;
+  top: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  animation-name: fx-snow-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fx-snow-fall {
+  0% { transform: translate(0, -10vh) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.9; }
+  100% { transform: translate(var(--drift), 110vh) rotate(200deg); opacity: 0.5; }
+}
+
+.fx-cloud {
+  position: absolute;
+  left: 0;
+  width: 260px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+  filter: blur(14px);
+  animation-name: fx-cloud-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fx-cloud-drift {
+  from { transform: translateX(-30vw); }
+  to { transform: translateX(130vw); }
+}
+
+.fx-fogband {
+  position: absolute;
+  left: -20%;
+  width: 140%;
+  height: 120px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  filter: blur(20px);
+  animation-name: fx-fog-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes fx-fog-drift {
+  from { transform: translateX(-15%); }
+  to { transform: translateX(15%); }
+}
+
+.fx-star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation-name: fx-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fx-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.fx-bokeh {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 250, 210, 0.35), rgba(255, 250, 210, 0));
+  filter: blur(6px);
+  animation-name: fx-bokeh-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fx-bokeh-float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(15px, -30px); }
+}
+
+.fx-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  animation: fx-flash 7s ease-in-out infinite;
+}
+
+@keyframes fx-flash {
+  0%, 92%, 100% { opacity: 0; }
+  93%, 95% { opacity: 0.12; }
+  94% { opacity: 0.02; }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .weatherfx *,
+  .speed-value-pulse,
+  .speed-value,
+  .app-header,
+  .dashboard > *,
+  .vehicle-picker-menu {
+    animation: none !important;
+    transition: none !important;
+  }
 }
