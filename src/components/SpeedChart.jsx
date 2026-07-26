@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { formatElapsed, niceCeil } from '../utils/format'
+import { downsample } from '../utils/downsample'
 
 const VIEW_W = 600
 const VIEW_H = 220
@@ -14,18 +15,7 @@ function toDisplaySpeed(speedMs, unit) {
   return unit === 'mph' ? speedMs * 2.236936 : speedMs * 3.6
 }
 
-function downsample(points, maxPoints) {
-  if (points.length <= maxPoints) return points
-  const stride = points.length / maxPoints
-  const out = []
-  for (let i = 0; i < maxPoints; i++) {
-    out.push(points[Math.floor(i * stride)])
-  }
-  out.push(points[points.length - 1])
-  return out
-}
-
-export default function SpeedChart({ samples, startedAt, unit }) {
+export default function SpeedChart({ samples, startedAt, unit, live = true }) {
   const svgRef = useRef(null)
   const [hoverIndex, setHoverIndex] = useState(null)
   const [showTable, setShowTable] = useState(false)
@@ -95,13 +85,15 @@ export default function SpeedChart({ samples, startedAt, unit }) {
       <div className="chart-header">
         <h2>Speed over time</h2>
         <div className="chart-summary">
-          {last ? `${last.speed.toFixed(0)} ${unit === 'mph' ? 'mph' : 'km/h'} now` : 'Waiting for data…'}
+          {last
+            ? `${last.speed.toFixed(0)} ${unit === 'mph' ? 'mph' : 'km/h'} ${live ? 'now' : 'final'}`
+            : 'Waiting for data…'}
           {maxPoint && ` · max ${maxPoint.speed.toFixed(0)} ${unit === 'mph' ? 'mph' : 'km/h'}`}
         </div>
       </div>
 
       {points.length < 2 ? (
-        <div className="chart-empty">Collecting speed samples…</div>
+        <div className="chart-empty">{live ? 'Collecting speed samples…' : 'No speed data recorded'}</div>
       ) : (
         <>
           <svg

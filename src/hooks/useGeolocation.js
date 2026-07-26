@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { haversineMeters } from '../utils/geo'
-import { readJSON, writeJSON } from '../utils/storage'
+import { readJSON, writeJSON, remove } from '../utils/storage'
 
 // Ignore fixes whose reported accuracy is worse than this (meters) when
 // accumulating odometer distance, to keep GPS jitter from adding fake miles.
@@ -9,11 +9,11 @@ const MAX_ACCURACY_FOR_DISTANCE_M = 30
 // fix from the distance total, since jitter is loudest while parked.
 const MIN_SPEED_FOR_DISTANCE_MS = 0.5
 
-// Trip distance survives a refresh (sessionStorage) but not a closed tab —
-// resetTrip() below, or closing the tab, is how you start a new one.
+// Distance only accumulates while `recording` is true, and survives a
+// refresh mid-trip via sessionStorage (cleared when the tab actually closes).
 export const TRIP_DISTANCE_KEY = 'odometer.trip.distanceMeters'
 
-export function useGeolocation() {
+export function useGeolocation(recording) {
   const [state, setState] = useState(() => ({
     status: 'idle', // idle | locating | tracking | error
     error: null,
@@ -51,7 +51,7 @@ export function useGeolocation() {
 
           const goodFix = accuracy != null && accuracy <= MAX_ACCURACY_FOR_DISTANCE_M
           const isMoving = (derivedSpeed ?? 0) >= MIN_SPEED_FOR_DISTANCE_MS
-          if (goodFix && isMoving) {
+          if (recording && goodFix && isMoving) {
             distanceDeltaM = segmentM
           }
         }
@@ -83,7 +83,12 @@ export function useGeolocation() {
     )
 
     return () => navigator.geolocation.clearWatch(watchId)
+  }, [recording])
+
+  const resetDistance = useCallback(() => {
+    remove(sessionStorage, TRIP_DISTANCE_KEY)
+    setState((s) => ({ ...s, distanceMeters: 0 }))
   }, [])
 
-  return state
+  return { ...state, resetDistance }
 }

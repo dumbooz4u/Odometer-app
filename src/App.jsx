@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useGeolocation, TRIP_DISTANCE_KEY } from './hooks/useGeolocation'
+import { useGeolocation } from './hooks/useGeolocation'
 import { useWeather } from './hooks/useWeather'
-import { useSpeedHistory, TRIP_HISTORY_KEY } from './hooks/useSpeedHistory'
+import { useSpeedHistory } from './hooks/useSpeedHistory'
 import { useWakeLock } from './hooks/useWakeLock'
 import { useReverseGeocode } from './hooks/useReverseGeocode'
+import { useTripRecorder } from './hooks/useTripRecorder'
 import { describeWeatherCode } from './utils/weatherCodes'
-import { readJSON, writeJSON, remove } from './utils/storage'
+import { readJSON, writeJSON } from './utils/storage'
 import SpeedDisplay from './components/SpeedDisplay'
 import MapView from './components/MapView'
 import VehiclePicker from './components/VehiclePicker'
@@ -14,6 +15,8 @@ import WeatherPanel from './components/WeatherPanel'
 import SpeedChart from './components/SpeedChart'
 import LocationBanner from './components/LocationBanner'
 import WeatherFX from './components/WeatherFX'
+import TripControls from './components/TripControls'
+import TripHistory from './components/TripHistory'
 
 const VEHICLE_STORAGE_KEY = 'odometer.vehicleIcon'
 const UNIT_STORAGE_KEY = 'odometer.unit'
@@ -31,11 +34,13 @@ function loadStoredUnit() {
 function App() {
   const [unit, setUnit] = useState(loadStoredUnit)
   const [vehicleIcon, setVehicleIcon] = useState(loadStoredVehicleIcon)
+  const [historyRefreshToken, setHistoryRefreshToken] = useState(0)
 
-  const geo = useGeolocation()
+  const trip = useTripRecorder()
+  const geo = useGeolocation(trip.isRecording)
   const weather = useWeather(geo.position?.lat, geo.position?.lon)
   const geocode = useReverseGeocode(geo.position?.lat, geo.position?.lon)
-  const speedHistory = useSpeedHistory(geo.speedMs, geo.status, geo.fixSeq)
+  const speedHistory = useSpeedHistory(geo.speedMs, geo.status, geo.fixSeq, trip.isRecording)
   const wakeLock = useWakeLock(geo.status === 'tracking' || geo.status === 'locating')
 
   useEffect(() => {
@@ -46,11 +51,21 @@ function App() {
     writeJSON(localStorage, UNIT_STORAGE_KEY, unit)
   }, [unit])
 
-  function handleResetTrip() {
-    if (!window.confirm('Reset trip distance and the speed chart? This can’t be undone.')) return
-    remove(sessionStorage, TRIP_DISTANCE_KEY)
-    remove(sessionStorage, TRIP_HISTORY_KEY)
-    window.location.reload()
+  function handleStartTrip() {
+    geo.resetDistance()
+    speedHistory.resetHistory()
+    trip.start(geocode.place)
+  }
+
+  function handleStopTrip() {
+    trip.stop({
+      endPlace: geocode.place,
+      distanceMeters: geo.distanceMeters,
+      samples: speedHistory.samples,
+    })
+    geo.resetDistance()
+    speedHistory.resetHistory()
+    setHistoryRefreshToken((t) => t + 1)
   }
 
   const theme = weather.data
@@ -75,6 +90,13 @@ function App() {
       </header>
 
       <main className="dashboard">
+        <TripControls
+          isRecording={trip.isRecording}
+          startedAt={trip.startedAt}
+          onStart={handleStartTrip}
+          onStop={handleStopTrip}
+        />
+
         <SpeedDisplay
           speedMs={geo.speedMs}
           distanceMeters={geo.distanceMeters}
@@ -83,7 +105,6 @@ function App() {
           unit={unit}
           intensity={intensity}
           onToggleUnit={() => setUnit((u) => (u === 'kmh' ? 'mph' : 'kmh'))}
-          onResetTrip={handleResetTrip}
         />
 
         <div className="map-wrapper">
@@ -96,8 +117,17 @@ function App() {
         <WeatherPanel weather={weather} />
 
         <div className="chart-wrapper">
-          <SpeedChart samples={speedHistory.samples} startedAt={speedHistory.startedAt} unit={unit} />
+          {trip.isRecording ? (
+            <SpeedChart samples={speedHistory.samples} startedAt={speedHistory.startedAt} unit={unit} />
+          ) : (
+            <div className="chart-panel">
+              <h2>Speed over time</h2>
+              <div className="chart-empty">Press "Start trip" to begin recording a speed chart.</div>
+            </div>
+          )}
         </div>
+
+        <TripHistory unit={unit} refreshToken={historyRefreshToken} />
       </main>
 
       <footer className="app-footer">

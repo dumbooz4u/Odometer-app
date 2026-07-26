@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { readJSON, writeJSON } from '../utils/storage'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { readJSON, writeJSON, remove } from '../utils/storage'
 
 // One sample per second is plenty for a trip-long speed profile and keeps
 // the point count bounded regardless of how often the GPS fix updates.
@@ -20,7 +20,7 @@ function loadStoredHistory() {
   return stored
 }
 
-export function useSpeedHistory(speedMs, status, fixSeq) {
+export function useSpeedHistory(speedMs, status, fixSeq, recording) {
   const initial = useRef(loadStoredHistory())
   const [samples, setSamples] = useState(initial.current.samples)
   const startRef = useRef(initial.current.startedAt)
@@ -44,7 +44,7 @@ export function useSpeedHistory(speedMs, status, fixSeq) {
   }, [])
 
   useEffect(() => {
-    if (status !== 'tracking') return
+    if (status !== 'tracking' || !recording) return
     if (startRef.current == null) startRef.current = Date.now()
 
     const now = Date.now()
@@ -65,7 +65,16 @@ export function useSpeedHistory(speedMs, status, fixSeq) {
     // fixSeq increments on every GPS fix so this samples even when speed
     // itself hasn't changed (e.g. holding steady at 0 or a constant speed).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fixSeq, status])
+  }, [fixSeq, status, recording])
 
-  return { samples, startedAt: startRef.current }
+  const resetHistory = useCallback(() => {
+    remove(sessionStorage, TRIP_HISTORY_KEY)
+    startRef.current = null
+    lastSampleRef.current = 0
+    lastPersistRef.current = 0
+    latestRef.current = { samples: [], startedAt: null }
+    setSamples([])
+  }, [])
+
+  return { samples, startedAt: startRef.current, resetHistory }
 }

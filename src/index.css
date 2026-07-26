@@ -115,7 +115,8 @@ body {
     max-width: 1100px;
   }
   .map-wrapper,
-  .chart-wrapper {
+  .chart-wrapper,
+  .trip-history {
     grid-column: span 2;
   }
 }
@@ -179,26 +180,6 @@ body {
 .odometer-unit {
   font-size: 0.75rem;
   opacity: 0.65;
-}
-
-.reset-trip {
-  margin-top: 0.5rem;
-  background: none;
-  border: none;
-  color: #c3c2b7;
-  font-size: 0.7rem;
-  opacity: 0.6;
-  cursor: pointer;
-  padding: 0.2rem 0.4rem;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.reset-trip:hover {
-  opacity: 1;
-}
-
-.reset-trip:active {
-  transform: scale(0.92);
 }
 
 .gps-status {
@@ -455,10 +436,12 @@ body {
 }
 
 .dashboard > *:nth-child(1) { animation-delay: 0s; }
-.dashboard > *:nth-child(2) { animation-delay: 0.06s; }
-.dashboard > *:nth-child(3) { animation-delay: 0.12s; }
-.dashboard > *:nth-child(4) { animation-delay: 0.18s; }
-.dashboard > *:nth-child(5) { animation-delay: 0.24s; }
+.dashboard > *:nth-child(2) { animation-delay: 0.05s; }
+.dashboard > *:nth-child(3) { animation-delay: 0.1s; }
+.dashboard > *:nth-child(4) { animation-delay: 0.15s; }
+.dashboard > *:nth-child(5) { animation-delay: 0.2s; }
+.dashboard > *:nth-child(6) { animation-delay: 0.25s; }
+.dashboard > *:nth-child(7) { animation-delay: 0.3s; }
 
 /* ---------- Glass panel depth ---------- */
 
@@ -761,6 +744,187 @@ body {
   94% { opacity: 0.02; }
 }
 
+/* ---------- Trip controls ---------- */
+
+.trip-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.trip-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.trip-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.trip-dot.is-recording {
+  background: #e34948;
+  box-shadow: 0 0 0 rgba(227, 73, 72, 0.5);
+  animation: trip-dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes trip-dot-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(227, 73, 72, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(227, 73, 72, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(227, 73, 72, 0); }
+}
+
+.trip-button {
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.trip-button:active {
+  transform: scale(0.94);
+}
+
+.trip-button--start {
+  background: rgba(70, 220, 130, 0.28);
+  color: #fff;
+}
+
+.trip-button--start:hover {
+  background: rgba(70, 220, 130, 0.4);
+}
+
+.trip-button--stop {
+  background: rgba(227, 73, 72, 0.28);
+  color: #fff;
+}
+
+.trip-button--stop:hover {
+  background: rgba(227, 73, 72, 0.42);
+}
+
+/* ---------- Trip history ---------- */
+
+.trip-history {
+  display: flex;
+  flex-direction: column;
+}
+
+.trip-history-toggle {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.trip-history-toggle:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.trip-history-toggle:active {
+  transform: scale(0.96);
+}
+
+.trip-history-list {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.trip-history-empty {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  padding: 0.5rem 0.25rem;
+}
+
+.trip-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+
+.trip-card-header {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.75rem 2.6rem 0.75rem 0.9rem;
+}
+
+.trip-card-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.trip-card-meta {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  opacity: 0.65;
+  font-variant-numeric: tabular-nums;
+}
+
+.trip-card-delete {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.trip-card-delete:hover {
+  background: rgba(227, 73, 72, 0.35);
+}
+
+.trip-card-delete:active {
+  transform: scale(0.9);
+}
+
+.trip-card-detail {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.trip-card-detail .chart-panel {
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -769,7 +933,8 @@ body {
   .speed-value,
   .app-header,
   .dashboard > *,
-  .vehicle-picker-menu {
+  .vehicle-picker-menu,
+  .trip-dot {
     animation: none !important;
     transition: none !important;
   }
