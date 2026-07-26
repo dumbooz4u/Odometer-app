@@ -87,7 +87,8 @@ body {
     grid-template-columns: 1fr 1fr;
     max-width: 1100px;
   }
-  .map-wrapper {
+  .map-wrapper,
+  .chart-wrapper {
     grid-column: span 2;
   }
 }
@@ -230,4 +231,155 @@ body {
   font-size: 0.7rem;
   opacity: 0.5;
   padding: 0.75rem;
+}
+
+.chart-panel {
+  background: rgba(13, 13, 13, 0.4);
+  backdrop-filter: blur(6px);
+  border-radius: 1rem;
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.chart-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.chart-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.chart-summary {
+  font-size: 0.8rem;
+  color: #c3c2b7;
+}
+
+.chart-empty {
+  font-size: 0.85rem;
+  opacity: 0.65;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.chart-svg {
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.chart-gridline {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1;
+}
+
+.chart-baseline {
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1;
+}
+
+.chart-axis-label {
+  fill: #898781;
+  font-size: 11px;
+}
+
+.chart-area {
+  fill: url(#speed-area-gradient);
+  stroke: none;
+}
+
+.chart-line {
+  fill: none;
+  stroke: #3987e5;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-live-dot {
+  fill: #3987e5;
+  stroke: rgba(13, 13, 13, 0.6);
+  stroke-width: 2;
+}
+
+.chart-crosshair {
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.chart-hover-dot {
+  fill: #fff;
+  stroke: #3987e5;
+  stroke-width: 2;
+}
+
+.chart-tooltip {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  color: #fff;
+  background: rgba(57, 135, 229, 0.25);
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.5rem;
+  display: inline-block;
+}
+
+.chart-table-toggle {
+  margin-top: 0.75rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.chart-table-toggle:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.chart-table-wrap {
+  margin-top: 0.6rem;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-table th,
+.chart-table td {
+  text-align: left;
+  padding: 0.3rem 0.75rem;
+}
+
+.chart-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(20, 20, 20, 0.9);
+  color: #c3c2b7;
+  font-weight: 500;
+}
+
+.chart-table tbody tr:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.chart-table-note {
+  font-size: 0.7rem;
+  opacity: 0.55;
+  padding: 0.4rem 0.75rem;
 }

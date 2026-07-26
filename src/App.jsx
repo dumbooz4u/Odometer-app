@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import { useGeolocation } from './hooks/useGeolocation'
 import { useWeather } from './hooks/useWeather'
+import { useSpeedHistory } from './hooks/useSpeedHistory'
 import { describeWeatherCode } from './utils/weatherCodes'
 import SpeedDisplay from './components/SpeedDisplay'
 import MapView from './components/MapView'
 import WeatherPanel from './components/WeatherPanel'
+import SpeedChart from './components/SpeedChart'
 
 function App() {
   const [unit, setUnit] = useState('kmh')
   const geo = useGeolocation()
   const weather = useWeather(geo.position?.lat, geo.position?.lon)
+  const speedHistory = useSpeedHistory(geo.speedMs, geo.status, geo.fixSeq)
 
   const theme = weather.data
     ? describeWeatherCode(weather.data.weather_code, weather.data.is_day).theme
@@ -37,6 +40,10 @@ function App() {
         </div>
 
         <WeatherPanel weather={weather} />
+
+        <div className="chart-wrapper">
+          <SpeedChart samples={speedHistory.samples} startedAt={speedHistory.startedAt} unit={unit} />
+        </div>
       </main>
 
       <footer className="app-footer">

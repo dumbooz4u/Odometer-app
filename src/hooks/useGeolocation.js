@@ -15,6 +15,7 @@ export function useGeolocation() {
     position: null, // { lat, lon, accuracy, heading, altitude }
     speedMs: 0, // instantaneous speed, meters/second
     distanceMeters: 0, // accumulated odometer reading
+    fixSeq: 0, // increments on every GPS fix, even if speed is unchanged
   })
   const lastFixRef = useRef(null)
 
@@ -59,6 +60,7 @@ export function useGeolocation() {
           position: { lat: latitude, lon: longitude, accuracy, heading, altitude },
           speedMs: derivedSpeed ?? 0,
           distanceMeters: s.distanceMeters + distanceDeltaM,
+          fixSeq: s.fixSeq + 1,
         }))
       },
       (err) => {
