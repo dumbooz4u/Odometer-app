@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Circle, Polyline, useMap } from 'react-leaflet'
-import L from 'leaflet'
+import { useVehicleDivIcon } from '../hooks/useVehicleMarkerIcon'
 
 // Leaflet measures its container's size once at creation. When a map mounts
 // inside a conditionally-rendered tab (e.g. trip playback), that measurement
@@ -25,26 +25,6 @@ function Recenter({ lat, lon, instant }) {
     map.setView([lat, lon], map.getZoom(), { animate: !instant })
   }, [lat, lon, map, instant])
   return null
-}
-
-function useVehicleDivIcon(emoji, heading) {
-  const lastHeadingRef = useRef(0)
-  if (typeof heading === 'number' && !Number.isNaN(heading)) {
-    lastHeadingRef.current = heading
-  }
-  const rotation = lastHeadingRef.current
-
-  return useMemo(
-    () =>
-      L.divIcon({
-        className: 'vehicle-marker-wrap',
-        html: `<div class="vehicle-marker" style="transform: rotate(${rotation}deg)"><span>${emoji}</span></div>`,
-        iconSize: [44, 44],
-        iconAnchor: [22, 22],
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [emoji, rotation],
-  )
 }
 
 export default function MapView({ position, vehicleIcon, fullPath, traveledPath, autoRecenter = true, instantRecenter = false }) {

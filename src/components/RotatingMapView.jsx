@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Circle, Polyline, useMap } from 'react-leaflet'
-import L from 'leaflet'
+import { useVehicleDivIcon } from '../hooks/useVehicleMarkerIcon'
 
 // A full-bleed map for the Drive View, kept deliberately separate from
 // MapView (which the rest of the app uses) so nothing here can affect the
@@ -36,26 +36,6 @@ function RotateContainer({ rotationDeg }) {
     el.style.transform = `rotate(${rotationDeg}deg)`
   }, [map, rotationDeg])
   return null
-}
-
-function useVehicleDivIcon(emoji, heading) {
-  const lastHeadingRef = useRef(0)
-  if (typeof heading === 'number' && !Number.isNaN(heading)) {
-    lastHeadingRef.current = heading
-  }
-  const rotation = lastHeadingRef.current
-
-  return useMemo(
-    () =>
-      L.divIcon({
-        className: 'vehicle-marker-wrap',
-        html: `<div class="vehicle-marker" style="transform: rotate(${rotation}deg)"><span>${emoji}</span></div>`,
-        iconSize: [44, 44],
-        iconAnchor: [22, 22],
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [emoji, rotation],
-  )
 }
 
 export default function RotatingMapView({ position, vehicleIcon, traveledPath, courseUp }) {

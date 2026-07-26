@@ -550,6 +550,28 @@ body {
   transform: translateY(-1px);
 }
 
+/* A separate arrow overlay that always points along the heading, layered
+   behind the vehicle emoji. Some vehicle icons (a train, a bike) don't read
+   as visibly "rotated" the way a car does, so the arrow keeps the direction
+   of movement unambiguous no matter which icon is picked. */
+.vehicle-marker-heading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.vehicle-marker-heading-arrow {
+  width: 0;
+  height: 0;
+  margin-top: -12px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 16px solid #ffb545;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
 /* ---------- Vehicle picker menu ---------- */
 
 .vehicle-picker {
@@ -1483,6 +1505,26 @@ body {
 .drive-btn--toggle.is-active {
   background: rgba(57, 135, 229, 0.45);
   border-color: rgba(57, 135, 229, 0.6);
+}
+
+.drive-btn--record {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.drive-btn--record.is-recording {
+  background: rgba(220, 60, 60, 0.45);
+  border-color: rgba(255, 110, 110, 0.6);
+}
+
+.drive-record-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #ff5a5a;
+  animation: trip-dot-pulse 1.4s ease-in-out infinite;
 }
 
 .drive-vehicle-picker {

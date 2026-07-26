@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { useWakeLock } from '../hooks/useWakeLock'
 import { useFullscreen } from '../hooks/useFullscreen'
+import { useTripRecorder } from '../hooks/useTripRecorder'
+import { useReverseGeocode } from '../hooks/useReverseGeocode'
+import { useSpeedHistory } from '../hooks/useSpeedHistory'
 import { readJSON, writeJSON } from '../utils/storage'
+import { formatElapsed } from '../utils/format'
 import { loadStoredVehicleIcon, loadStoredUnit, VEHICLE_STORAGE_KEY, UNIT_STORAGE_KEY } from '../utils/preferences'
 import RotatingMapView from './RotatingMapView'
 import VehiclePicker from './VehiclePicker'
@@ -23,12 +27,17 @@ export default function DriveView() {
   const [vehicleIcon, setVehicleIcon] = useState(loadStoredVehicleIcon)
   const [courseUp, setCourseUp] = useState(loadStoredCourseUp)
 
-  // This view never accumulates trip distance itself — it's a standalone
-  // live display, independent of whatever the main app's trip recorder is
-  // doing (which keeps this screen simple and safe to open at any time).
-  const geo = useGeolocation(false)
+  // Trip recording here reuses the exact same sessionStorage-backed state as
+  // the main app's TripControls — starting a trip from Drive View and later
+  // switching to the regular screen (or vice versa) sees the same trip still
+  // running, and it lands in the same saved trip history either way.
+  const trip = useTripRecorder()
+  const geo = useGeolocation(trip.isRecording)
+  const geocode = useReverseGeocode(geo.position?.lat, geo.position?.lon)
+  const speedHistory = useSpeedHistory(geo.speedMs, geo.status, geo.fixSeq, trip.isRecording, geo.position)
   const wakeLock = useWakeLock(true)
   const fullscreen = useFullscreen(rootRef)
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
     writeJSON(localStorage, VEHICLE_STORAGE_KEY, vehicleIcon)
@@ -42,18 +51,55 @@ export default function DriveView() {
     writeJSON(localStorage, COURSE_UP_KEY, courseUp)
   }, [courseUp])
 
+  useEffect(() => {
+    if (!trip.isRecording) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [trip.isRecording])
+
   const speedKmh = geo.speedMs * 3.6
   const intensity = Math.max(0, Math.min(1, speedKmh / 140))
   const speedValue = toDisplaySpeed(geo.speedMs, unit)
+  const elapsedSec = trip.isRecording && trip.startedAt ? (now - trip.startedAt) / 1000 : 0
+
+  const traveledPath = useMemo(
+    () =>
+      trip.isRecording
+        ? speedHistory.samples.filter((s) => s.lat != null && s.lon != null).map((s) => [s.lat, s.lon])
+        : undefined,
+    [trip.isRecording, speedHistory.samples],
+  )
 
   function handleExit() {
     if (document.fullscreenElement) fullscreen.exit()
     window.location.hash = ''
   }
 
+  function handleStartTrip() {
+    geo.resetDistance()
+    speedHistory.resetHistory()
+    trip.start(geocode.place)
+  }
+
+  function handleStopTrip() {
+    trip.stop({
+      endPlace: geocode.place,
+      distanceMeters: geo.distanceMeters,
+      samples: speedHistory.samples,
+      vehicleIcon,
+    })
+    geo.resetDistance()
+    speedHistory.resetHistory()
+  }
+
   return (
     <div className="drive-view" ref={rootRef} style={{ '--speed-intensity': intensity }}>
-      <RotatingMapView position={geo.position} vehicleIcon={vehicleIcon} courseUp={courseUp} />
+      <RotatingMapView
+        position={geo.position}
+        vehicleIcon={vehicleIcon}
+        courseUp={courseUp}
+        traveledPath={traveledPath}
+      />
 
       <div className="drive-scrim drive-scrim--top" />
       <div className="drive-scrim drive-scrim--bottom" />
@@ -62,6 +108,16 @@ export default function DriveView() {
         <button className="drive-btn" onClick={handleExit} title="Exit drive view" aria-label="Exit drive view">
           ✕
         </button>
+
+        {trip.isRecording ? (
+          <button className="drive-btn drive-btn--record is-recording" onClick={handleStopTrip}>
+            <span className="drive-record-dot" />⏹ Stop · {formatElapsed(elapsedSec)}
+          </button>
+        ) : (
+          <button className="drive-btn drive-btn--record" onClick={handleStartTrip}>
+            ⏺ Record trip
+          </button>
+        )}
 
         <div className="drive-topbar-right">
           <button
