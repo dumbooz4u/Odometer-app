@@ -896,7 +896,7 @@ body {
   border: none;
   color: #fff;
   cursor: pointer;
-  padding: 0.75rem 2.6rem 0.75rem 0.9rem;
+  padding: 0.75rem 4.6rem 0.75rem 0.9rem;
 }
 
 .trip-card-name {
@@ -911,10 +911,16 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.trip-card-delete {
+.trip-card-actions {
   position: absolute;
   top: 0.6rem;
   right: 0.6rem;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.trip-card-share,
+.trip-card-delete {
   background: rgba(255, 255, 255, 0.08);
   border: none;
   border-radius: 50%;
@@ -925,12 +931,26 @@ body {
   transition: background 0.15s ease, transform 0.15s ease;
 }
 
+.trip-card-share:hover {
+  background: rgba(57, 135, 229, 0.35);
+}
+
 .trip-card-delete:hover {
   background: rgba(227, 73, 72, 0.35);
 }
 
+.trip-card-share:active,
 .trip-card-delete:active {
   transform: scale(0.9);
+}
+
+.share-status {
+  padding: 0 0.9rem 0.75rem;
+  font-size: 0.78rem;
+}
+
+.share-status--error {
+  color: #ffb4a8;
 }
 
 .trip-card-detail {
@@ -1003,6 +1023,175 @@ body {
   font-size: 11px;
 }
 
+/* ---------- Share link box ---------- */
+
+.share-link-box {
+  padding: 0 0.9rem 0.75rem;
+}
+
+.share-link-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.share-link-input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  font-family: inherit;
+}
+
+.share-copy-button {
+  flex-shrink: 0;
+  background: rgba(57, 135, 229, 0.3);
+  border: none;
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.share-copy-button:hover {
+  background: rgba(57, 135, 229, 0.45);
+}
+
+.share-copy-button:active {
+  transform: scale(0.94);
+}
+
+.share-note {
+  margin-top: 0.4rem;
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+/* ---------- Live sharing (trip controls) ---------- */
+
+.live-share {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.live-share .share-link-box,
+.live-share .share-status {
+  padding: 0.5rem 0 0;
+}
+
+.live-share-toggle {
+  background: rgba(227, 73, 72, 0.22);
+  border: none;
+  color: #fff;
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.live-share-toggle:hover {
+  background: rgba(227, 73, 72, 0.34);
+}
+
+.live-share-toggle:active {
+  transform: scale(0.95);
+}
+
+.live-share-toggle--stop {
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 0.25rem;
+}
+
+.live-share-retry {
+  margin-left: 0.6rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  border-radius: 0.4rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+/* ---------- Standalone share/live viewer screens ---------- */
+
+.share-view .dashboard {
+  grid-template-columns: 1fr;
+  max-width: 480px;
+  align-content: start;
+}
+
+.share-summary {
+  align-items: stretch;
+  text-align: center;
+}
+
+.share-trip-name {
+  margin: 0.25rem 0 0;
+  font-size: 1.2rem;
+}
+
+.share-trip-meta {
+  font-size: 0.8rem;
+  opacity: 0.65;
+  margin-top: 0.2rem;
+}
+
+.share-stat-row {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.1rem;
+  gap: 0.5rem;
+}
+
+.share-stat-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.share-stat-label {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-top: 0.15rem;
+}
+
+.share-places {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.live-badge {
+  display: inline-block;
+  align-self: center;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 0.5rem;
+}
+
+.live-badge.is-live {
+  background: rgba(227, 73, 72, 0.28);
+  animation: trip-dot-pulse 1.6s ease-in-out infinite;
+}
+
+.live-badge.is-stale {
+  background: rgba(250, 178, 25, 0.25);
+}
+
+.live-badge.is-ended {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1013,6 +1202,7 @@ body {
   .dashboard > *,
   .vehicle-picker-menu,
   .trip-dot,
+  .live-badge.is-live,
   .gauge-needle,
   .gauge-progress,
   .gauge-hub {
