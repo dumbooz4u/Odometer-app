@@ -20,7 +20,7 @@ function loadStoredHistory() {
   return stored
 }
 
-export function useSpeedHistory(speedMs, status, fixSeq, recording) {
+export function useSpeedHistory(speedMs, status, fixSeq, recording, position) {
   const initial = useRef(loadStoredHistory())
   const [samples, setSamples] = useState(initial.current.samples)
   const startRef = useRef(initial.current.startedAt)
@@ -52,7 +52,7 @@ export function useSpeedHistory(speedMs, status, fixSeq, recording) {
     lastSampleRef.current = now
 
     setSamples((prev) => {
-      const next = [...prev, { t: now, speedMs }]
+      const next = [...prev, { t: now, speedMs, lat: position?.lat ?? null, lon: position?.lon ?? null }]
       const trimmed = next.length > MAX_SAMPLES ? next.slice(next.length - MAX_SAMPLES) : next
       latestRef.current = { samples: trimmed, startedAt: startRef.current }
 

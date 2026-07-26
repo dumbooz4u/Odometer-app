@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Circle, Polyline, useMap } from 'react-leaflet'
 import L from 'leaflet'
 
 function Recenter({ lat, lon }) {
@@ -30,7 +30,7 @@ function useVehicleDivIcon(emoji, heading) {
   )
 }
 
-export default function MapView({ position, vehicleIcon }) {
+export default function MapView({ position, vehicleIcon, fullPath, traveledPath, autoRecenter = true }) {
   const icon = useVehicleDivIcon(vehicleIcon, position?.heading)
 
   if (!position) {
@@ -45,9 +45,15 @@ export default function MapView({ position, vehicleIcon }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      {fullPath && fullPath.length > 1 && (
+        <Polyline positions={fullPath} pathOptions={{ color: '#ffffff', weight: 3, opacity: 0.3, dashArray: '2 8' }} />
+      )}
+      {traveledPath && traveledPath.length > 1 && (
+        <Polyline positions={traveledPath} pathOptions={{ color: '#3987e5', weight: 4, opacity: 0.9 }} />
+      )}
       <Marker position={[lat, lon]} icon={icon} />
       {accuracy && <Circle center={[lat, lon]} radius={accuracy} pathOptions={{ color: '#3987e5', weight: 1 }} />}
-      <Recenter lat={lat} lon={lon} />
+      {autoRecenter && <Recenter lat={lat} lon={lon} />}
     </MapContainer>
   )
 }

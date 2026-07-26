@@ -5,6 +5,7 @@ import { formatDuration } from '../utils/format'
 import { encodeTripShare, buildShareUrl } from '../utils/shareLink'
 import SpeedChart from './SpeedChart'
 import ShareLinkBox from './ShareLinkBox'
+import TripPlayback from './TripPlayback'
 
 function speedLabel(speedMs, unit) {
   const value = unit === 'mph' ? speedMs * 2.236936 : speedMs * 3.6
@@ -19,6 +20,7 @@ function distanceLabel(distanceMeters, unit) {
 export default function TripHistory({ unit, refreshToken }) {
   const [open, setOpen] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
+  const [detailView, setDetailView] = useState('chart')
   const [trips, setTrips] = useState(loadTrips)
   const [shares, setShares] = useState({})
 
@@ -28,6 +30,11 @@ export default function TripHistory({ unit, refreshToken }) {
 
   function handleToggleOpen() {
     setOpen((v) => !v)
+  }
+
+  function handleExpand(id) {
+    setExpandedId((cur) => (cur === id ? null : id))
+    setDetailView('chart')
   }
 
   function handleDelete(id) {
@@ -61,8 +68,10 @@ export default function TripHistory({ unit, refreshToken }) {
             const share = shares[trip.id]
             return (
               <div className="trip-card" key={trip.id}>
-                <button className="trip-card-header" onClick={() => setExpandedId((id) => (id === trip.id ? null : trip.id))}>
-                  <div className="trip-card-name">{trip.name}</div>
+                <button className="trip-card-header" onClick={() => handleExpand(trip.id)}>
+                  <div className="trip-card-name">
+                    {trip.vehicleIcon && <span className="trip-card-icon">{trip.vehicleIcon}</span>} {trip.name}
+                  </div>
                   <div className="trip-card-meta">
                     {new Date(trip.startedAt).toLocaleString()} · {formatDuration(trip.durationMs)} ·{' '}
                     {distanceLabel(trip.distanceMeters, unit)} · max {speedLabel(trip.maxSpeedMs, unit)}
@@ -88,7 +97,26 @@ export default function TripHistory({ unit, refreshToken }) {
 
                 {expandedId === trip.id && (
                   <div className="trip-card-detail">
-                    <SpeedChart samples={trip.samples} startedAt={trip.startedAt} unit={unit} live={false} />
+                    <div className="trip-detail-tabs">
+                      <button
+                        className={`trip-detail-tab${detailView === 'chart' ? ' is-active' : ''}`}
+                        onClick={() => setDetailView('chart')}
+                      >
+                        📈 Chart
+                      </button>
+                      <button
+                        className={`trip-detail-tab${detailView === 'playback' ? ' is-active' : ''}`}
+                        onClick={() => setDetailView('playback')}
+                      >
+                        🗺️ Playback
+                      </button>
+                    </div>
+
+                    {detailView === 'chart' ? (
+                      <SpeedChart samples={trip.samples} startedAt={trip.startedAt} unit={unit} live={false} />
+                    ) : (
+                      <TripPlayback trip={trip} unit={unit} />
+                    )}
                   </div>
                 )}
               </div>

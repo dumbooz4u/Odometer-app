@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useGeolocation } from './hooks/useGeolocation'
 import { useWeather } from './hooks/useWeather'
 import { useSpeedHistory } from './hooks/useSpeedHistory'
@@ -48,7 +48,7 @@ export default function OdometerApp() {
   const geo = useGeolocation(trip.isRecording)
   const weather = useWeather(geo.position?.lat, geo.position?.lon)
   const geocode = useReverseGeocode(geo.position?.lat, geo.position?.lon)
-  const speedHistory = useSpeedHistory(geo.speedMs, geo.status, geo.fixSeq, trip.isRecording)
+  const speedHistory = useSpeedHistory(geo.speedMs, geo.status, geo.fixSeq, trip.isRecording, geo.position)
   const wakeLock = useWakeLock(geo.status === 'tracking' || geo.status === 'locating')
   const liveShare = useLiveShare()
 
@@ -92,6 +92,7 @@ export default function OdometerApp() {
       endPlace: geocode.place,
       distanceMeters: geo.distanceMeters,
       samples: speedHistory.samples,
+      vehicleIcon,
     })
     liveShare.stop()
     geo.resetDistance()
@@ -105,6 +106,14 @@ export default function OdometerApp() {
 
   const speedKmh = geo.speedMs * 3.6
   const intensity = Math.max(0, Math.min(1, speedKmh / 140))
+
+  const traveledPath = useMemo(
+    () =>
+      trip.isRecording
+        ? speedHistory.samples.filter((s) => s.lat != null && s.lon != null).map((s) => [s.lat, s.lon])
+        : undefined,
+    [trip.isRecording, speedHistory.samples],
+  )
 
   return (
     <div className="app" data-theme={theme} style={{ '--speed-intensity': intensity }}>
@@ -142,7 +151,7 @@ export default function OdometerApp() {
         />
 
         <div className="map-wrapper">
-          <MapView position={geo.position} vehicleIcon={vehicleIcon} />
+          <MapView position={geo.position} vehicleIcon={vehicleIcon} traveledPath={traveledPath} />
           <VehiclePicker value={vehicleIcon} onChange={setVehicleIcon} />
         </div>
 

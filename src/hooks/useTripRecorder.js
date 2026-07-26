@@ -22,7 +22,7 @@ export function useTripRecorder() {
   }, [])
 
   const stop = useCallback(
-    ({ endPlace, distanceMeters, samples }) => {
+    ({ endPlace, distanceMeters, samples, vehicleIcon }) => {
       if (!recording) return null
       const endedAt = Date.now()
       const maxSpeedMs = samples.reduce((m, s) => Math.max(m, s.speedMs), 0)
@@ -36,6 +36,7 @@ export function useTripRecorder() {
         maxSpeedMs,
         startPlace: recording.startPlace,
         endPlace: endPlace ?? null,
+        vehicleIcon: vehicleIcon ?? '🚙',
         samples: downsample(samples, MAX_ARCHIVED_SAMPLES),
       }
 

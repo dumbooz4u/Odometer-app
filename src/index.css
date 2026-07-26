@@ -964,6 +964,146 @@ body {
   background: transparent;
 }
 
+.trip-card-icon {
+  margin-right: 0.15rem;
+}
+
+/* ---------- Trip detail tabs (chart / playback) ---------- */
+
+.trip-detail-tabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.75rem 0.9rem 0;
+}
+
+.chart-wrapper .trip-detail-tabs {
+  padding: 0 0 0.75rem;
+}
+
+.trip-detail-tab {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: #fff;
+  border-radius: 0.6rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: background 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.trip-detail-tab:hover {
+  opacity: 1;
+}
+
+.trip-detail-tab:active {
+  transform: scale(0.95);
+}
+
+.trip-detail-tab.is-active {
+  background: rgba(57, 135, 229, 0.32);
+  opacity: 1;
+}
+
+/* ---------- Trip playback ---------- */
+
+.playback-panel {
+  padding: 0.9rem;
+}
+
+.trip-card-detail .playback-panel {
+  padding: 0 0 0.9rem;
+}
+
+.playback-map .map-container {
+  height: 240px;
+}
+
+.playback-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.playback-play {
+  flex-shrink: 0;
+  background: rgba(57, 135, 229, 0.3);
+  border: none;
+  color: #fff;
+  border-radius: 0.6rem;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.playback-play:hover {
+  background: rgba(57, 135, 229, 0.45);
+}
+
+.playback-play:active {
+  transform: scale(0.94);
+}
+
+.playback-play:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.playback-scrub {
+  flex: 1;
+  accent-color: #3987e5;
+}
+
+.playback-time {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  min-width: 4.5rem;
+  text-align: right;
+}
+
+.playback-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.6rem;
+}
+
+.playback-speed-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.playback-speeds {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.playback-speed-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.playback-speed-btn:hover {
+  opacity: 1;
+}
+
+.playback-speed-btn.is-active {
+  background: rgba(57, 135, 229, 0.35);
+  opacity: 1;
+}
+
 /* ---------- Analog speedometer gauge ---------- */
 
 .analog-gauge {

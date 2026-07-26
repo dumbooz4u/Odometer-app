@@ -4,6 +4,7 @@ import { metersToKm, metersToMiles } from '../utils/geo'
 import { formatDuration } from '../utils/format'
 import { placeLabel } from '../utils/place'
 import SpeedChart from './SpeedChart'
+import TripPlayback from './TripPlayback'
 
 function speedLabel(speedMs, unit) {
   const value = unit === 'mph' ? speedMs * 2.236936 : speedMs * 3.6
@@ -18,6 +19,7 @@ function distanceLabel(distanceMeters, unit) {
 export default function SharedTripView({ encoded }) {
   const [state, setState] = useState({ status: 'loading', data: null, error: null })
   const [unit, setUnit] = useState('kmh')
+  const [detailView, setDetailView] = useState('chart')
 
   useEffect(() => {
     decodeTripShare(encoded)
@@ -94,7 +96,26 @@ export default function SharedTripView({ encoded }) {
             </div>
 
             <div className="chart-wrapper">
-              <SpeedChart samples={state.data.trip.samples} startedAt={state.data.trip.startedAt} unit={unit} live={false} />
+              <div className="trip-detail-tabs">
+                <button
+                  className={`trip-detail-tab${detailView === 'chart' ? ' is-active' : ''}`}
+                  onClick={() => setDetailView('chart')}
+                >
+                  📈 Chart
+                </button>
+                <button
+                  className={`trip-detail-tab${detailView === 'playback' ? ' is-active' : ''}`}
+                  onClick={() => setDetailView('playback')}
+                >
+                  🗺️ Playback
+                </button>
+              </div>
+
+              {detailView === 'chart' ? (
+                <SpeedChart samples={state.data.trip.samples} startedAt={state.data.trip.startedAt} unit={unit} live={false} />
+              ) : (
+                <TripPlayback trip={state.data.trip} unit={unit} />
+              )}
             </div>
           </>
         )}
