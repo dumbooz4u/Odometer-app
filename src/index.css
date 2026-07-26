@@ -1008,11 +1008,21 @@ body {
 /* ---------- Trip playback ---------- */
 
 .playback-panel {
-  padding: 0.9rem;
+  background: rgba(13, 13, 13, 0.4);
+  border-radius: 1rem;
+  padding: 1.25rem 1.25rem 1rem;
 }
 
 .trip-card-detail .playback-panel {
-  padding: 0 0 0.9rem;
+  background: transparent;
+  border-radius: 0;
+  padding: 0 1.25rem 1rem;
+}
+
+.playback-map {
+  /* .map-wrapper's own min-height (320px) would otherwise leave dead space
+     below this map's fixed 240px height. */
+  min-height: 0;
 }
 
 .playback-map .map-container {
