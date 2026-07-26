@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { haversineMeters } from '../utils/geo'
+import { bearingDeg, haversineMeters } from '../utils/geo'
 import { readJSON, writeJSON, remove } from '../utils/storage'
 
 // Ignore fixes whose reported accuracy is worse than this (meters) when
@@ -8,6 +8,12 @@ const MAX_ACCURACY_FOR_DISTANCE_M = 30
 // Below this speed (m/s) we treat the vehicle as stationary and drop the
 // fix from the distance total, since jitter is loudest while parked.
 const MIN_SPEED_FOR_DISTANCE_MS = 0.5
+// Many browsers/devices never populate coords.heading at all (or only once
+// moving fast enough for their own internal course-over-ground estimate).
+// When it's missing, derive a heading from consecutive fixes ourselves —
+// below this per-fix movement (meters) that computed bearing is too noisy
+// to trust, since GPS jitter swings wildly at low/no speed.
+const MIN_DISTANCE_FOR_HEADING_M = 3
 
 // Distance only accumulates while `recording` is true, and survives a
 // refresh mid-trip via sessionStorage (cleared when the tab actually closes).
@@ -39,6 +45,7 @@ export function useGeolocation(recording) {
         const prev = lastFixRef.current
 
         let derivedSpeed = speed
+        let derivedHeading = heading
         let distanceDeltaM = 0
 
         if (prev) {
@@ -47,6 +54,10 @@ export function useGeolocation(recording) {
 
           if (derivedSpeed == null && dtSeconds > 0) {
             derivedSpeed = segmentM / dtSeconds
+          }
+
+          if (derivedHeading == null && segmentM >= MIN_DISTANCE_FOR_HEADING_M) {
+            derivedHeading = bearingDeg(prev.lat, prev.lon, latitude, longitude)
           }
 
           const goodFix = accuracy != null && accuracy <= MAX_ACCURACY_FOR_DISTANCE_M
@@ -65,7 +76,7 @@ export function useGeolocation(recording) {
             ...s,
             status: 'tracking',
             error: null,
-            position: { lat: latitude, lon: longitude, accuracy, heading, altitude },
+            position: { lat: latitude, lon: longitude, accuracy, heading: derivedHeading, altitude },
             speedMs: derivedSpeed ?? 0,
             distanceMeters,
             fixSeq: s.fixSeq + 1,
