@@ -8,10 +8,10 @@ import { useTripRecorder } from './hooks/useTripRecorder'
 import { useLiveShare } from './hooks/useLiveShare'
 import { describeWeatherCode } from './utils/weatherCodes'
 import { readJSON, writeJSON } from './utils/storage'
+import { VEHICLE_STORAGE_KEY, UNIT_STORAGE_KEY, loadStoredVehicleIcon, loadStoredUnit } from './utils/preferences'
 import SpeedDisplay from './components/SpeedDisplay'
 import MapView from './components/MapView'
 import VehiclePicker from './components/VehiclePicker'
-import { VEHICLE_ICONS } from './utils/vehicleIcons'
 import WeatherPanel from './components/WeatherPanel'
 import SpeedChart from './components/SpeedChart'
 import LocationBanner from './components/LocationBanner'
@@ -19,19 +19,7 @@ import WeatherFX from './components/WeatherFX'
 import TripControls from './components/TripControls'
 import TripHistory from './components/TripHistory'
 
-const VEHICLE_STORAGE_KEY = 'odometer.vehicleIcon'
-const UNIT_STORAGE_KEY = 'odometer.unit'
 const SPEED_MODE_STORAGE_KEY = 'odometer.speedMode'
-
-function loadStoredVehicleIcon() {
-  const stored = readJSON(localStorage, VEHICLE_STORAGE_KEY, null)
-  return VEHICLE_ICONS.some((v) => v.emoji === stored) ? stored : VEHICLE_ICONS[0].emoji
-}
-
-function loadStoredUnit() {
-  const stored = readJSON(localStorage, UNIT_STORAGE_KEY, 'kmh')
-  return stored === 'mph' ? 'mph' : 'kmh'
-}
 
 function loadStoredSpeedMode() {
   const stored = readJSON(localStorage, SPEED_MODE_STORAGE_KEY, 'digital')
@@ -153,6 +141,15 @@ export default function OdometerApp() {
         <div className="map-wrapper">
           <MapView position={geo.position} vehicleIcon={vehicleIcon} traveledPath={traveledPath} />
           <VehiclePicker value={vehicleIcon} onChange={setVehicleIcon} />
+          <button
+            className="drive-view-entry"
+            onClick={() => {
+              window.location.hash = 'drive'
+            }}
+            title="Open full-screen drive view"
+          >
+            ⛶ Full screen
+          </button>
         </div>
 
         <LocationBanner geocode={geocode} />

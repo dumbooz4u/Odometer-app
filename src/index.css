@@ -1342,6 +1342,213 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+/* ---------- Drive View entry button (main app) ---------- */
+
+.drive-view-entry {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.6rem;
+  z-index: 1200;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 0.6rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.drive-view-entry:hover {
+  background: rgba(20, 20, 20, 0.8);
+}
+
+.drive-view-entry:active {
+  transform: scale(0.94);
+}
+
+/* ---------- Drive View (full-screen) ---------- */
+
+.drive-view {
+  position: fixed;
+  inset: 0;
+  background: #0d0d0d;
+  color: #fff;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.drive-map-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+.drive-map-shell {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #1a1a1a;
+}
+
+.drive-map-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 170vmax;
+  height: 170vmax;
+  margin-top: -85vmax;
+  margin-left: -85vmax;
+  transition: transform 0.35s ease;
+}
+
+.drive-map-attribution {
+  position: absolute;
+  bottom: 0.3rem;
+  right: 0.5rem;
+  z-index: 2;
+  font-size: 0.6rem;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.drive-map-attribution a {
+  color: inherit;
+  pointer-events: auto;
+}
+
+.drive-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.drive-scrim--top {
+  top: 0;
+  height: 24vh;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0));
+}
+
+.drive-scrim--bottom {
+  bottom: 0;
+  height: 32vh;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0));
+}
+
+.drive-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: max(0.75rem, env(safe-area-inset-top)) 0.75rem 0;
+}
+
+.drive-topbar-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.drive-btn {
+  background: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border-radius: 0.7rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.drive-btn:hover {
+  background: rgba(20, 20, 20, 0.75);
+}
+
+.drive-btn:active {
+  transform: scale(0.94);
+}
+
+.drive-btn--toggle.is-active {
+  background: rgba(57, 135, 229, 0.45);
+  border-color: rgba(57, 135, 229, 0.6);
+}
+
+.drive-vehicle-picker {
+  position: absolute;
+  top: 4.6rem;
+  right: 0.75rem;
+  z-index: 5;
+}
+
+.drive-bottombar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  padding: 0 1rem max(1.25rem, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.drive-gps-error,
+.drive-gps-status {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 0.4rem;
+}
+
+.drive-speed-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.drive-speed-value {
+  font-size: clamp(4rem, 22vw, 9rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 2px 18px rgba(0, 0, 0, 0.8),
+    0 0 calc(10px + 30px * var(--speed-intensity, 0)) rgba(255, 130, 60, calc(0.7 * var(--speed-intensity, 0)));
+}
+
+.drive-unit-toggle {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  border-radius: 0.6rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  align-self: center;
+}
+
+.drive-unit-toggle:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.drive-wakelock {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1355,7 +1562,8 @@ body {
   .live-badge.is-live,
   .gauge-needle,
   .gauge-progress,
-  .gauge-hub {
+  .gauge-hub,
+  .drive-map-container {
     animation: none !important;
     transition: none !important;
   }
